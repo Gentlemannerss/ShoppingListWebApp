@@ -5,22 +5,27 @@ function App() {
   const [items, setItems] = useState([]);
   const [newItem, setNewItem] = useState("");
 
-  // Load from localStorage on startup
+  // Load shared list
   useEffect(() => {
-    const storedItems = JSON.parse(localStorage.getItem("shoppingList"));
-    if (storedItems) {
-      setItems(storedItems);
-    }
+    fetch("/api/GetList")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.items) setItems(data.items);
+      })
+      .catch((err) => console.error("Load error:", err));
   }, []);
 
-  // Save to localStorage whenever items change
+  // Save list when it changes
   useEffect(() => {
-    localStorage.setItem("shoppingList", JSON.stringify(items));
+    fetch("/api/SaveList", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ items }),
+    }).catch((err) => console.error("Save error:", err));
   }, [items]);
 
   const addItem = () => {
     if (!newItem.trim()) return;
-
     setItems([...items, newItem.trim()]);
     setNewItem("");
   };
@@ -48,7 +53,10 @@ function App() {
         {items.map((item, index) => (
           <li key={index} className="list-item">
             <span>{item}</span>
-            <button className="delete-btn" onClick={() => deleteItem(index)}>
+            <button
+              className="delete-btn"
+              onClick={() => deleteItem(index)}
+            >
               ❌
             </button>
           </li>
