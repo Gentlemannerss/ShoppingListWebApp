@@ -1,4 +1,4 @@
-module.exports = async function (context, req) {
+export default async function (context, req) {
   const list = {
     items: ["Milk", "Eggs"]
   };
